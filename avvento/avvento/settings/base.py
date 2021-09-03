@@ -28,6 +28,9 @@ SITE_ROOT = DJANGO_ROOT.parent  # avvento_project
 # Site name:
 SITE_NAME = DJANGO_ROOT.name  # avvento
 
+# Output directory for export documents
+OUTPUT_DIR = SITE_ROOT / 'output'
+
 # Add our project to our pythonpath, this way we don't need to type our project
 # name in our dotted import paths:
 path.append(str(DJANGO_ROOT))
@@ -91,6 +94,56 @@ LOCAL_APPS = (
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 ########## END APP CONFIGURATION
+
+
+########## LOGGING CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#logging
+# A sample logging configuration. The only tangible logging
+# performed by this configuration is to send an email to
+# the site admins on every HTTP 500 error when DEBUG=False.
+# See http://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s [%(asctime)s] %(module)s %(message)s',
+        },
+        'simple': {
+            'format': '%(message)s',
+        }
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['mail_admins'],
+            'propagate': True,
+            'level': 'ERROR',
+        },
+        'amici': {
+            'handlers': ['mail_admins'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'module': {
+            'handlers': ['mail_admins'],
+            'propagate': True,
+            'level': 'ERROR',
+        },
+    },
+}
+
+########## END LOGGING CONFIGURATION
 
 
 ########## MIDDLEWARE CONFIGURATION

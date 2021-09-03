@@ -1,21 +1,26 @@
+from random import shuffle
+import logging
+
+from backoff import on_exception, expo
+
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import transaction
-from amici_dell_avvento.models import (
+
+from amici.models import (
     Friend,
     FriendList,
 )
-from random import shuffle
-from util.util import Email
-from backoff import on_exception, expo
+
+logger = logging.getLogger(__name__)
 
 
-EMAIL = Email(
-    email = settings.SENDER_EMAIL,
-    password = settings.SENDER_EMAIL_PASSWORD,
-    host = settings.SENDER_EMAIL_HOST,
-    port = settings.SENDER_EMAIL_PORT,
-)
+# EMAIL = Email(
+#     email = settings.SENDER_EMAIL,
+#     password = settings.SENDER_EMAIL_PASSWORD,
+#     host = settings.SENDER_EMAIL_HOST,
+#     port = settings.SENDER_EMAIL_PORT,
+# )
 
 class InvalidFriendListException(Exception):
     """Raised when an invalid Advent Friend List is detected """
@@ -30,9 +35,9 @@ def validate_friend_list(matches):
     for m1, m2 in matches:
         if not is_valid_friend(m1, m2):
             raise InvalidFriendListException(m1, m2)
-            EMAIL.send(
+            # EMAIL.send(
 
-            )
+            # )
             return False
     return True
 
@@ -93,31 +98,31 @@ class Command(BaseCommand):
                     if r.get('alt_name'):
                         recipient_name = '%s (%s)' % (recipient_name, r.get('alt_name'))
 
-                    EMAIL.send(
-                        recipient_email=g.get('email'),
-                        subject='Advent Friend',
-                        message = """
-                            Hi %s,
+                    # EMAIL.send(
+                    #     recipient_email=g.get('email'),
+                    #     subject='Advent Friend',
+                    #     message = """
+                    #         Hi %s,
 
-                            Your Advent friend is: %s
+                    #         Your Advent friend is: %s
 
-                            Happy Advent!
+                    #         Happy Advent!
 
-                            --Bryan
-                        """ % (giver_name, recipient_name))
+                    #         --Bryan
+                    #     """ % (giver_name, recipient_name))
             except BaseException as error:
-                print(str(error))
-                EMAIL.send(
-                    settings.ADMIN_EMAIL,
-                    subject="Amici dell'Avvento Error",
-                    message=str(error),
-                    send_email_override=True,
-                )
+                logger.debug(str(error))
+                # EMAIL.send(
+                #     settings.ADMIN_EMAIL,
+                #     subject="Amici dell'Avvento Error",
+                #     message=str(error),
+                #     send_email_override=True,
+                # )
 
-            EMAIL.send(
-                settings.ADMIN_EMAIL,
-                subject="Amici dell'Avvento Success",
-                message="Script ran successfully.",
-                send_email_override=True,
-            )
-            print('finis')
+            # EMAIL.send(
+            #     settings.ADMIN_EMAIL,
+            #     subject="Amici dell'Avvento Success",
+            #     message="Script ran successfully.",
+            #     send_email_override=True,
+            # )
+            logger.info('finis')
