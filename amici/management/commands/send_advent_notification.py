@@ -1,15 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from amici_dell_avvento.models import Friend
-from util.util import Email
+from django.core.mail import send_mail
 
-
-EMAIL = Email(
-    email = settings.SENDER_EMAIL,
-    password = settings.SENDER_EMAIL_PASSWORD,
-    host = settings.SENDER_EMAIL_HOST,
-    port = settings.SENDER_EMAIL_PORT,
-)
 
 class Command(BaseCommand):
     help = 'Sends an Advent Friend noticication e-mail'
@@ -37,6 +30,11 @@ class Command(BaseCommand):
                     --Bryan
                 """ % friend.display_name
 
-            EMAIL.send(recipient_email=friend.email, subject=subject, message=message)
+            send_mail(
+                subject=subject,
+                message=message,
+                recipient_list=[recipient_email=friend.email],
+                fail_silently=False,
+            )
 
         print('finis')

@@ -195,3 +195,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 ########## END STATIC FILE CONFIGURATION
+
+
+########## EMAIL CONFIGURATION
+# Django email settings
+EMAIL_HOST = ''
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 0
+EMAIL_USE_SSL = True
+########## END EMAIL CONFIGURATION
