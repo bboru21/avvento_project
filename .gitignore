@@ -1,0 +1,48 @@
+# Virtual Environment:
+venv
+
+# Local and Production settings:
+**/settings/local*.py
+**/settings/production.py
+
+# Python bytecode:
+*.py[co]
+
+# Packaging files:
+*.egg*
+
+# Sphinx docs:
+build
+
+# SQLite3 database files:
+*.db
+*.sqlite3
+
+# Logs:
+*.log
+
+# Linux Editors
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+*.swp
+*.swo
+
+# Mac
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Local Readme
+README-local.md
+
+# assets
+assets
