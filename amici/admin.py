@@ -25,5 +25,6 @@ action_export_to_xlsx.short_description = "Export to Excel Spreadsheet"
 class FriendListAdmin(admin.ModelAdmin):
     actions = (action_export_to_xlsx,)
 
-
-admin.site.register(Friend)
+@admin.register(Friend)
+class FriendAdmin(admin.ModelAdmin):
+    list_filter = ('active',)

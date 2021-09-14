@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from amici_dell_avvento.models import Friend
+from amici.models import Friend
 from django.core.mail import send_mail
 
 
@@ -18,23 +18,23 @@ class Command(BaseCommand):
 
         for friend in Friend.objects.filter(active=True):
             if notification == 1:
-                message = """
-                    Hi %s,
+                message = f"""
+                    Hi {friend.display_name},
                     Advent is just around the corner, and we'll be drawing names in just a few days! Please let me know ASAP if you don't want to participate. Otherwise on November 11th I will email you your secret name!
                     --Bryan
-                """ % friend.display_name
+                """
             elif notification == 2:
-                message = """
-                    Hi %s,
+                message = f"""
+                    Hi {friend.display_name},
                     Just a reminder that we'll be drawing names tomorrow, so please let me know ASAP if you don't want to participate!
                     --Bryan
-                """ % friend.display_name
+                """
 
             send_mail(
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 subject=subject,
                 message=message,
-                recipient_list=[recipient_email=friend.email],
-                fail_silently=False,
+                recipient_list=(friend.email,),
             )
 
         print('finis')

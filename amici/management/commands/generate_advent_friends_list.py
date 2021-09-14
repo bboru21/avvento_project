@@ -6,6 +6,10 @@ from backoff import on_exception, expo
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import transaction
+from django.core.mail import (
+    mail_admins,
+    send_mail,
+)
 
 from amici.models import (
     Friend,
@@ -14,13 +18,6 @@ from amici.models import (
 
 logger = logging.getLogger(__name__)
 
-
-# EMAIL = Email(
-#     email = settings.SENDER_EMAIL,
-#     password = settings.SENDER_EMAIL_PASSWORD,
-#     host = settings.SENDER_EMAIL_HOST,
-#     port = settings.SENDER_EMAIL_PORT,
-# )
 
 class InvalidFriendListException(Exception):
     """Raised when an invalid Advent Friend List is detected """
@@ -35,9 +32,6 @@ def validate_friend_list(matches):
     for m1, m2 in matches:
         if not is_valid_friend(m1, m2):
             raise InvalidFriendListException(m1, m2)
-            # EMAIL.send(
-
-            # )
             return False
     return True
 
@@ -98,31 +92,29 @@ class Command(BaseCommand):
                     if r.get('alt_name'):
                         recipient_name = '%s (%s)' % (recipient_name, r.get('alt_name'))
 
-                    # EMAIL.send(
-                    #     recipient_email=g.get('email'),
-                    #     subject='Advent Friend',
-                    #     message = """
-                    #         Hi %s,
+                    send_mail(
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        subject='Advent Friend',
+                        message=f"""
+                            Hi {giver_name},
 
-                    #         Your Advent friend is: %s
+                            Your Advent friend is: {recipient_name}
 
-                    #         Happy Advent!
+                            Happy Advent!
 
-                    #         --Bryan
-                    #     """ % (giver_name, recipient_name))
+                            --Bryan
+                        """,
+                        recipient_list=(g.get('email'),)
+                    )
             except BaseException as error:
                 logger.debug(str(error))
-                # EMAIL.send(
-                #     settings.ADMIN_EMAIL,
-                #     subject="Amici dell'Avvento Error",
-                #     message=str(error),
-                #     send_email_override=True,
-                # )
+                mail_admins(
+                    subject="Amici dell'Avvento Error",
+                    message=str(error),
+                )
 
-            # EMAIL.send(
-            #     settings.ADMIN_EMAIL,
-            #     subject="Amici dell'Avvento Success",
-            #     message="Script ran successfully.",
-            #     send_email_override=True,
-            # )
+            mail_admins(
+                subject="Amici dell'Avvento Success",
+                message="Script ran successfully.",
+            )
             logger.info('finis')
