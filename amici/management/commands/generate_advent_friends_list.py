@@ -3,7 +3,7 @@ import logging
 
 from backoff import on_exception, expo
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db import transaction
 from django.core.mail import (
@@ -26,7 +26,8 @@ class InvalidFriendListException(Exception):
         self.item2 = item2
 
     def __str__(self):
-        return str('%s is an invalid friend for %s' % (self.item2, self.item1))
+        return f'{self.item2} is an invalid friend for {self.item1}'
+
 
 def validate_friend_list(matches):
     for m1, m2 in matches:
@@ -35,12 +36,14 @@ def validate_friend_list(matches):
             return False
     return True
 
-def is_valid_friend(a, b):
-        if a and b and a['id'] not in [b['id'], b['spouse']]:
-            return True
-        return False
 
-        return False
+def is_valid_friend(a, b):
+    if a and b and a['id'] not in [b['id'], b['spouse']]:
+        return True
+    return False
+
+    return False
+
 
 class Command(BaseCommand):
     help = 'Generates the Advent Friend List'
@@ -55,66 +58,78 @@ class Command(BaseCommand):
         return None
 
     '''
-        Use backoff package to retry if we get a list that has someone without an advent friend
+        Use backoff package to retry if we get a list that has someone without
+        an advent friend
     '''
     @on_exception(expo, InvalidFriendListException, max_tries=3)
     def handle(self, *args, **options):
-            friends = []
-            contacts = Friend.objects \
-                .filter(active=True) \
-                .values('id', 'first_name', 'last_name', 'alt_name', 'email', 'spouse')
+        friends = []
+        contacts = Friend.objects \
+            .filter(active=True) \
+            .values(
+                'id',
+                'first_name',
+                'last_name',
+                'alt_name',
+                'email',
+                'spouse',
+            )
 
-            self.pool = list(contacts).copy()
+        self.pool = list(contacts).copy()
 
-            for contact in contacts:
-                friend = self.get_friend(contact)
-                friends.append([contact, friend])
+        for contact in contacts:
+            friend = self.get_friend(contact)
+            friends.append([contact, friend])
 
-            validate_friend_list(friends)
+        validate_friend_list(friends)
 
-            try:
-                with transaction.atomic():
-                    for [g, r] in friends:
-
-                        giver = Friend.objects.get( id=int(g.get('id')) )
-                        recipient = Friend.objects.get( id=int(r.get('id')) )
-
-                        f = FriendList( giver=giver, recipient=recipient )
-                        f.save()
-
+        try:
+            with transaction.atomic():
                 for [g, r] in friends:
 
-                    giver_name = g.get('alt_name')
-                    if not giver_name:
-                        giver_name = g.get('first_name')
+                    giver = Friend.objects.get(id=int(g.get('id')))
+                    recipient = Friend.objects.get(id=int(r.get('id')))
 
-                    recipient_name = '%s %s' % (r.get('first_name'), r.get('last_name'))
-                    if r.get('alt_name'):
-                        recipient_name = '%s (%s)' % (recipient_name, r.get('alt_name'))
+                    f = FriendList(giver=giver, recipient=recipient)
+                    f.save()
 
-                    send_mail(
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        subject='Advent Friend',
-                        message=f"""
-                            Hi {giver_name},
+            for [g, r] in friends:
 
-                            Your Advent friend is: {recipient_name}
+                giver_name = g.get('alt_name')
+                if not giver_name:
+                    giver_name = g.get('first_name')
 
-                            Happy Advent!
+                recipient_first_name = r.get('first_name')
+                recipient_last_name = r.get('last_name')
+                recipient_name = f'{recipient_first_name} {recipient_last_name}'
 
-                            --Bryan
-                        """,
-                        recipient_list=(g.get('email'),)
-                    )
-            except BaseException as error:
-                logger.debug(str(error))
-                mail_admins(
-                    subject="Amici dell'Avvento Error",
-                    message=str(error),
+                recipient_alt_name = r.get('alt_name')
+                if recipient_alt_name:
+                    recipient_name = f'{recipient_name} ({recipient_alt_name})'
+
+                send_mail(
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    subject='Advent Friend',
+                    message=f"""
+                        Hi {giver_name},
+
+                        Your Advent friend is: {recipient_name}
+
+                        Happy Advent!
+
+                        --Bryan
+                    """,
+                    recipient_list=(g.get('email'),)
                 )
-
+        except BaseException as error:
+            logger.debug(str(error))
             mail_admins(
-                subject="Amici dell'Avvento Success",
-                message="Script ran successfully.",
+                subject="Amici dell'Avvento Error",
+                message=str(error),
             )
-            logger.info('finis')
+
+        mail_admins(
+            subject="Amici dell'Avvento Success",
+            message="Script ran successfully.",
+        )
+        logger.info('finis')
