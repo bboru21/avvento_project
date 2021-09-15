@@ -1,0 +1,7 @@
+Hi {{recipient_name}},
+
+{{content}}
+
+--Bryan
+
+P.S. if you wish to opt-out this year for any reason, click <a href="{{link}}">here</a> or copy and paste this URL in your webbrowser: {{link}}.

@@ -47,6 +47,9 @@ README-local.md
 # assets
 assets
 
+# Local Readme
+README-local.md
+
 # output files except README.md
 output/*
 !output/README.md
