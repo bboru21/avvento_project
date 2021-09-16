@@ -5,7 +5,10 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
-from amici.models import Friend
+from amici.models import (
+    Friend,
+    OptOutLink,
+)
 
 
 class Command(BaseCommand):
@@ -27,6 +30,11 @@ class Command(BaseCommand):
 
         for friend in Friend.objects.filter(active=True):
             if notification == 1:
+
+                opt_out_link = OptOutLink.objects.create(
+                    friend = friend,
+                )
+
                 message = f"""
                     Advent is just around the corner, and we'll be drawing
                     names in just a few days! Please let me know ASAP if you
@@ -34,6 +42,11 @@ class Command(BaseCommand):
                     will email you your secret name!
                 """
             elif notification == 2:
+
+                opt_out_link = OptOutLink.objects.filter(
+                    expired=False,
+                    friend=friend,
+                )
                 message = f"""
                     Just a reminder that we'll be drawing names tomorrow, so
                     please let me know ASAP if you don't want to participate!
@@ -44,7 +57,7 @@ class Command(BaseCommand):
                 'recipient_name': friend.display_name,
                 'content': message,
                 'year': year,
-                'link': f'{settings.SITE_URL}amici/#CHANGEME',
+                'link': f'{settings.SITE_URL}amici/opt-out/{opt_out_link.urlname}/',
             }
 
             message = render_to_string('amici/templates/email.txt', context)
