@@ -1,0 +1,28 @@
+{# https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML/Getting_started#anatomy_of_an_html_document #}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Advent Friends {{year}} Opt-Out</title>
+    </head>
+    <body>
+        {% if link.expired %}
+            <p>This link has expired.</p>
+        {% else %}
+
+            {% if action == 'choose' %}
+                <p>Hi {{link.friend.display_name}},</p>
+                <p>Please confirm you'd like to opt out this year:</p>
+                <form method="post" action={% url 'opt_out' urlname %}>
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="confirm" />
+                    <input type="submit" value="Yes, I'd like to opt out" />
+                </form>
+            {% endif %}
+            {% if action == 'confirm' %}
+                <p>Opt-out confirmed!</p>
+                <p>Wishing you a blessed Advent and Merry Christmas!</p>
+            {% endif %}
+        {% endif %}
+    </body>
+</html>
