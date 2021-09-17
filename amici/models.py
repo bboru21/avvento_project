@@ -39,6 +39,7 @@ class FriendList(models.Model):
 def _generate_hex():
     return uuid.uuid1().hex
 
+
 class OptOutLink(models.Model):
     urlname = models.CharField(
         max_length=32,

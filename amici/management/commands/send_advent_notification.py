@@ -21,12 +21,27 @@ class Command(BaseCommand):
             choices=(1, 2),
         )
 
+    def activate_all_friends(self):
+        for friend in Friend.objects.filter(active=False):
+            friend.active = True
+            friend.save()
+
+    def expire_all_opt_out_links(self):
+        for link in OptOutLink.objects.filter(expired=False):
+            link.expired = True
+            link.save()
+
     def handle(self, *args, **options):
 
         notification = options['notification']
 
         year = datetime.date.today().year
         subject = f'Advent Friends ({year})'
+
+        if notification == 1:
+            # cleanup everything for first notification
+            self.activate_all_friends()
+            self.expire_all_opt_out_links()
 
         for friend in Friend.objects.filter(active=True):
             if notification == 1:
@@ -37,9 +52,10 @@ class Command(BaseCommand):
 
                 message = f"""
                     Advent is just around the corner, and we'll be drawing
-                    names in just a few days! Please let me know ASAP if you
-                    don't want to participate. Otherwise on November 11th I
-                    will email you your secret name!
+                    names in just a few days! If you don't wish to
+                    participate, follow the instructions in the P.S.
+                    below. Otherwise on November 11th I will email you your
+                    secret name!
                 """
             elif notification == 2:
 
@@ -49,7 +65,8 @@ class Command(BaseCommand):
                 )
                 message = f"""
                     Just a reminder that we'll be drawing names tomorrow, so
-                    please let me know ASAP if you don't want to participate!
+                    if you don't want to participate, be sure to follow the
+                    instructions in the P.S. below.
                 """
 
             context = {
@@ -58,6 +75,7 @@ class Command(BaseCommand):
                 'content': message,
                 'year': year,
                 'link': f'{settings.SITE_URL}amici/opt-out/{opt_out_link.urlname}/',
+                'sender_name': settings.DEFAULT_FROM_EMAIL_NAME,
             }
 
             message = render_to_string('amici/templates/email.txt', context)

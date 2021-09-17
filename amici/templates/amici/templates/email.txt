@@ -2,6 +2,8 @@ Hi {{recipient_name}},
 
 {{content}}
 
---Bryan
+{{sender_name}}
 
-P.S. if you wish to opt-out this year for any reason, click <a href="{{link}}">here</a> or copy and paste this URL in your webbrowser: {{link}}.
+P.S. If you wish to opt-out this year, copy and paste the URL below into the address bar of your browser and follow the instructions:
+
+{{link}}

@@ -115,9 +115,9 @@ class Command(BaseCommand):
 
                         Your Advent friend is: {recipient_name}
 
-                        Happy Advent!
+                        Wishing you a Blessed Advent!
 
-                        --Bryan
+                        {settings.DEFAULT_FROM_EMAIL_NAME}
                     """,
                     recipient_list=(g.get('email'),)
                 )
