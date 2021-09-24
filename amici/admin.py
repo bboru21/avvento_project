@@ -28,3 +28,4 @@ class FriendListAdmin(admin.ModelAdmin):
 @admin.register(Friend)
 class FriendAdmin(admin.ModelAdmin):
     list_filter = ('active',)
+    list_display = ('first_name', 'last_name', 'email',)
