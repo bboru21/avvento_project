@@ -1,4 +1,5 @@
 {# https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML/Getting_started#anatomy_of_an_html_document #}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -6,16 +7,30 @@
         <title>Advent Friends {{year}}</title>
     </head>
     <body style="font-family: Baskerville, serif; font-size: 1.25rem; padding: 0.5rem;">
-        <p>Hi {{recipient_name}},</p>
+        <div>
+            <div>
+                <img
+                    style="border-radius: 50%; border: 15px solid white; box-shadow: -2px 2px 8px #CCCCCC; float: right; margin: 0 0 1.0rem 1.0rem;"
+                    src="{% static 'george-hinke_baking-cookies-350x350.jpg' %}"
+                    alt="Santa Claus"
+                    width="200px"
+                    height="200px"
+                />
+                <div>
+                    <p>Hi {{recipient_name}},</p>
 
-        <p>{{content}}</p>
+                    <p>{{content}}</p>
 
-        <p>{{sender_name}}</p>
+                    <p>{{sender_name}}</p>
+                </div>
+                <div style="clear: right; width:  100%; height: 0;"></div>
+            </div>
 
-        <hr style="border-width: 1px; border-color: #901a1a;" />
+            <hr style="border-width: 1px; border-color: #901a1a;" />
 
-        <p><b>Opt-Out Instructions:</b> If you wish to opt-out this year, either click <a href="{{opt_out_url}}" target="_blank" style="font-weight: 700; color: #901a1a;">here</a> or copy and paste the URL below into the address bar of your browser and follow the instructions.</p>
+            <p><b>Opt-Out Instructions:</b> If you wish to opt-out this year, either click <a href="{{opt_out_url}}" target="_blank" style="font-weight: 700; color: #901a1a;">here</a> or copy and paste the URL below into the address bar of your browser and follow the instructions.</p>
 
-        <pre>{{opt_out_url}}</pre>
+            <pre>{{opt_out_url}}</pre>
+        </div>
     </body>
 </html>

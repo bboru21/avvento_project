@@ -45,7 +45,8 @@ Desktop.ini
 README-local.md
 
 # assets
-assets
+assets/*
+!assets/README.md
 
 # Local Readme
 README-local.md

@@ -1,0 +1,3 @@
+# static
+
+Static directory.
