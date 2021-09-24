@@ -68,7 +68,8 @@ def get_email_context(
     context = {
         'recipient_name': recipient_name,
         'content': content,
-        'opt_out_url': f'{settings.SITE_URL}amici/opt-out/{opt_out_urlname}/',
+        'site_url': settings.SITE_URL,
+        'opt_out_url': f'{settings.SITE_URL}/amici/opt-out/{opt_out_urlname}/',
         'notification': notification,
         'year': year,
         'sender_name': sender_name,

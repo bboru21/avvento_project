@@ -9,9 +9,10 @@
     <body style="font-family: Baskerville, serif; font-size: 1.25rem; padding: 0.5rem;">
         <div>
             <div>
+                {% static "george-hinke_baking-cookies-350x350.jpg" as photo %}
                 <img
                     style="border-radius: 50%; border: 15px solid white; box-shadow: -2px 2px 8px #CCCCCC; float: right; margin: 0 0 1.0rem 1.0rem;"
-                    src="{% static 'george-hinke_baking-cookies-350x350.jpg' %}"
+                    src="{{site_url}}{{photo}}"
                     alt="Santa Claus"
                     width="200px"
                     height="200px"
