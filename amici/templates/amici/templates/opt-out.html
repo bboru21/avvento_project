@@ -11,6 +11,9 @@
                 font-family: Baskerville, serif;
                 font-size: 1.25rem;
             }
+            div.container {
+                max-width:  600px;
+            }
             input[type="submit"] {
                 background-color: #901a1a;
                 border-width:  0;
@@ -25,36 +28,51 @@
             input[type="submit"]:hover {
                 background-color:  #d03b3b;
             }
+
+            img {
+                width:  200px;
+                height:  200px;
+                border-radius: 50%;
+                border: 15px solid #FFFFFF;
+                box-shadow: -2px 2px 8px #CCCCCC;
+                float: right;
+                margin: 0 0 1.0rem 1.0rem;
+            }
+
+            @media (max-width:  650px) {
+                img {
+                    width:  100px;
+                    height:  100px;
+                    margin: 0 0 0.5rem 0.5rem;
+                    border: 5px solid #FFFFFF;
+                }
+            }
         </style>
     </head>
     <body>
-        {% if link.expired %}
-            <p>This link has expired.</p>
-        {% else %}
-
-            {% if action == 'choose' %}
-                <p>Hi {{link.friend.display_name}},</p>
-                <p>Please confirm you'd like to opt out this year:</p>
-                <form method="post" action={% url 'opt_out' urlname %}>
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="confirm" />
-                    <input type="submit" value="Yes, I'd like to opt out" />
-                </form>
-            {% endif %}
-            {% if action == 'confirm' %}
-                <img
-                    style="border-radius: 50%; border: 15px solid white; box-shadow: -2px 2px 8px #CCCCCC; float: right; margin: 0 0 1.0rem 1.0rem;"
-                    src="{% static 'george-hinke_baking-cookies-350x350.jpg' %}"
-                    alt="Santa Claus"
-                    width="200px"
-                    height="200px"
-                />
-                <div>
-                    <p>Opt-out confirmed!</p>
-                    <p>Wishing you a Blessed Advent and Merry Christmas!</p>
-                </div>
-                <div style="clear: right; width:  100%; height: 0;"></div>
-            {% endif %}
-        {% endif %}
+        <div class="container">
+            <img
+                src="{% static 'george-hinke_baking-cookies-350x350.jpg' %}"
+                alt="Santa Claus"
+            />
+            <div>
+                {% if action == 'choose' %}
+                    <p>Hi {{display_name}},</p>
+                    <p>Please confirm you'd like to opt out this year:</p>
+                    <form method="post" action={% url 'opt_out' urlname %}>
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="confirm" />
+                        <input type="submit" value="Yes, I'd like to opt out" />
+                    </form>
+                {% endif %}
+                {% if action == 'confirm' %}
+                    <div>
+                        <p>Opt-out confirmed!</p>
+                        <p>Wishing you a Blessed Advent and Merry Christmas!</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div style="clear: right; width:  100%; height: 0;"></div>
+        </div>
     </body>
 </html>

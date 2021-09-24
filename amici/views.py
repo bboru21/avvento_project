@@ -35,47 +35,55 @@ def preview_email(request, type):
 
 def opt_out(request, urlname):
 
-    link = get_object_or_404(OptOutLink, urlname=urlname)
+    if urlname == 'preview':
+        display_name = 'Name'
+    else:
+        link = get_object_or_404(OptOutLink, urlname=urlname)
+        display_name = link.friend.display_name
 
     action = request.POST.get('action', 'choose')
 
-    if action == 'confirm':
+    context = {
+        'action': action,
+        'display_name': display_name,
+        'urlname': urlname,
+    }
 
-        # deactivate
-        friend = link.friend
-        friend.active = False
-        friend.save()
+    if urlname != 'preview':
+        if action == 'confirm':
 
-       # TODO figure out how to expire the link (while showing confirmation message)
+            # deactivate
+            friend = link.friend
+            friend.active = False
+            friend.save()
 
-        # send confirmation email to deactivated friend
-        send_mail(
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            subject='Advent Friend Opt-Out Successful',
-            message=f"""
-                Hi {friend.display_name},
+           # TODO figure out how to expire the link (while showing confirmation message)
 
-                Just a confirmation e-mail to let you know your opt out was
-                successful, and that you won't be participating in Advent
-                Friends this year. No further action is required.
+            # send confirmation email to deactivated friend
+            send_mail(
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                subject='Advent Friend Opt-Out Successful',
+                message=f"""
+                    Hi {friend.display_name},
 
-                Blessed Advent and Merry Christmas!
+                    Just a confirmation e-mail to let you know your opt out was
+                    successful, and that you won't be participating in Advent
+                    Friends this year. No further action is required.
 
-                {settings.DEFAULT_FROM_EMAIL_NAME}
-            """,
-            recipient_list=(friend.email,)
-        )
+                    Blessed Advent and Merry Christmas!
 
-        mail_admins(
-            "Amici dell'Avvento Opt-Out",
-            f"{link.friend.display_fullname} has chosen to opt out.",
-        )
+                    {settings.DEFAULT_FROM_EMAIL_NAME}
+                """,
+                recipient_list=(friend.email,)
+            )
+
+            mail_admins(
+                "Amici dell'Avvento Opt-Out",
+                f"{link.friend.display_fullname} has chosen to opt out.",
+            )
 
     return render(
         request,
         'amici/templates/opt-out.html',
-        { 'link': link, 'action': action, 'urlname': urlname },
+        context,
     )
-
-
-    return HttpResponse(f'opt out {urlname}')
