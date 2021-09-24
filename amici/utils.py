@@ -1,6 +1,6 @@
 import logging
-
 import pandas
+import datetime
 
 from django.conf import settings
 
@@ -40,3 +40,37 @@ def export_to_xlsx(queryset):
     logger.info(f'ouput file written to: {full_filepath}')
 
     return full_filepath
+
+
+def get_email_context(
+    recipient_name,
+    sender_name=settings.DEFAULT_FROM_EMAIL_NAME,
+    notification=1,
+    year=datetime.datetime.now(),
+    opt_out_urlname='preview',
+):
+
+    if notification == 1:
+        content = """
+            Advent is just around the corner, and we'll be drawing
+            names in just a few days! If you don't wish to
+            participate, follow the instructions below.
+            Otherwise on November 11th I will email you your
+            secret name!
+        """
+    elif notification == 2:
+        content = """
+            Just a reminder that we'll be drawing names tomorrow, so
+            if you don't want to participate, be sure to follow the
+            instructions below.
+        """
+
+    context = {
+        'recipient_name': recipient_name,
+        'content': content,
+        'opt_out_url': f'{settings.SITE_URL}amici/opt-out/{opt_out_urlname}/',
+        'notification': notification,
+        'year': year,
+        'sender_name': sender_name,
+    }
+    return context

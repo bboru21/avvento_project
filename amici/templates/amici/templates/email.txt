@@ -6,4 +6,4 @@ Hi {{recipient_name}},
 
 P.S. If you wish to opt-out this year, copy and paste the URL below into the address bar of your browser and follow the instructions:
 
-{{link}}
+{{opt_out_url}}

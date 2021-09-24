@@ -10,9 +10,28 @@ from django.core.mail import (
 )
 
 from .models import OptOutLink
+from .utils import get_email_context
 
 def index(request):
     return HttpResponse("amici")
+
+def preview_email(request, type):
+
+    context = get_email_context(
+        recipient_name='Name',
+        notification=int(request.GET.get('notification', 1)),
+    )
+
+    if type == 'txt':
+        template = 'amici/templates/email.txt'
+    else:
+        template = 'amici/templates/email.html'
+
+    return render(
+        request,
+        template,
+        context,
+    )
 
 def opt_out(request, urlname):
 

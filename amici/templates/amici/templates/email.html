@@ -5,15 +5,17 @@
         <meta charset="utf-8">
         <title>Advent Friends {{year}}</title>
     </head>
-    <body>
+    <body style="font-family: Baskerville, serif; font-size: 1.25rem; padding: 0.5rem;">
         <p>Hi {{recipient_name}},</p>
 
         <p>{{content}}</p>
 
         <p>{{sender_name}}</p>
 
-        <p>P.S. If you wish to opt-out this year, either click <a href="{{link}}" target="_blank">here</a> or copy and paste the URL below into the address bar of your browser and follow the instructions.</p>
+        <hr style="border-width: 1px; border-color: #901a1a;" />
 
-        <pre>{{link}}</pre>
+        <p><b>Opt-Out Instructions:</b> If you wish to opt-out this year, either click <a href="{{opt_out_url}}" target="_blank" style="font-weight: 700; color: #901a1a;">here</a> or copy and paste the URL below into the address bar of your browser and follow the instructions.</p>
+
+        <pre>{{opt_out_url}}</pre>
     </body>
 </html>

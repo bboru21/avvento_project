@@ -4,6 +4,27 @@
     <head>
         <meta charset="utf-8">
         <title>Advent Friends {{year}} Opt-Out</title>
+        <style>
+            body {
+                padding:  0.5rem;
+                font-family: Baskerville, serif;
+                font-size: 1.25rem;
+            }
+            input[type="submit"] {
+                background-color: #901a1a;
+                border-width:  0;
+                padding:  0.5rem;
+                color:  #FFFFFF;
+                font-family:  inherit;
+                font-size:  inherit;
+                border-radius:  3px;
+                cursor:  pointer;
+                transition: all 0.5s ease-out;
+            }
+            input[type="submit"]:hover {
+                background-color:  #d03b3b;
+            }
+        </style>
     </head>
     <body>
         {% if link.expired %}

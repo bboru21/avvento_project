@@ -9,6 +9,7 @@ from amici.models import (
     Friend,
     OptOutLink,
 )
+from amici.utils import get_email_context
 
 
 class Command(BaseCommand):
@@ -45,38 +46,21 @@ class Command(BaseCommand):
 
         for friend in Friend.objects.filter(active=True):
             if notification == 1:
-
                 opt_out_link = OptOutLink.objects.create(
                     friend = friend,
                 )
-
-                message = f"""
-                    Advent is just around the corner, and we'll be drawing
-                    names in just a few days! If you don't wish to
-                    participate, follow the instructions in the P.S.
-                    below. Otherwise on November 11th I will email you your
-                    secret name!
-                """
             elif notification == 2:
-
                 opt_out_link = OptOutLink.objects.filter(
                     expired=False,
                     friend=friend,
                 )
-                message = f"""
-                    Just a reminder that we'll be drawing names tomorrow, so
-                    if you don't want to participate, be sure to follow the
-                    instructions in the P.S. below.
-                """
 
-            context = {
-                'notification': notification,
-                'recipient_name': friend.display_name,
-                'content': message,
-                'year': year,
-                'link': f'{settings.SITE_URL}amici/opt-out/{opt_out_link.urlname}/',
-                'sender_name': settings.DEFAULT_FROM_EMAIL_NAME,
-            }
+            context = get_email_context(
+                recipient_name=friend.display_name,
+                notification=notification,
+                year=year,
+                opt_out_urlname=opt_out_link.urlname,
+            )
 
             message = render_to_string('amici/templates/email.txt', context)
 
