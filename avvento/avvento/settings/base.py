@@ -123,20 +123,43 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
         },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': SITE_ROOT / 'logs' / 'debug.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+        },
+        'file_error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': SITE_ROOT / 'logs' / 'error.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+        },
     },
     'loggers': {
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
         'django': {
-            'handlers': ['mail_admins'],
+            'handlers': ['console', 'file', 'file_error', 'mail_admins'],
             'propagate': True,
             'level': 'ERROR',
         },
         'amici': {
-            'handlers': ['mail_admins'],
+            'handlers': ['console', 'file', 'file_error', 'mail_admins'],
             'propagate': True,
             'level': 'INFO',
         },
         'module': {
-            'handlers': ['mail_admins'],
+            'handlers': ['console', 'file', 'file_error', 'mail_admins'],
             'propagate': True,
             'level': 'ERROR',
         },

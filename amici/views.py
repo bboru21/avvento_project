@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.shortcuts import (
     get_object_or_404,
@@ -11,6 +13,10 @@ from django.core.mail import (
 
 from .models import OptOutLink
 from .utils import get_email_context
+
+
+logger = logging.getLogger(__name__)
+
 
 def index(request):
     return HttpResponse("amici")
@@ -81,6 +87,8 @@ def opt_out(request, urlname):
                 "Amici dell'Avvento Opt-Out",
                 f"{link.friend.display_fullname} has chosen to opt out.",
             )
+
+            logging.debug(f"{link.friend.display_fullname} has chosen to opt out.")
 
     return render(
         request,
