@@ -9,6 +9,7 @@
     <body style="font-family: Baskerville, serif; font-size: 1.25rem; padding: 0.5rem;">
         <div>
             <div>
+                {% comment %}
                 {% static "george-hinke_baking-cookies-350x350.jpg" as photo %}
                 <img
                     style="border-radius: 50%; border: 15px solid white; box-shadow: -2px 2px 8px #CCCCCC; float: right; margin: 0 0 1.0rem 1.0rem;"
@@ -16,6 +17,7 @@
                     width="200px"
                     height="200px"
                 />
+                {% endcomment %}
                 <div>
                     <p>Hi {{recipient_name}},</p>
 
@@ -28,9 +30,11 @@
 
             <hr style="border-width: 1px; border-color: #901a1a;" />
 
+            {% comment %}
             <p><b>Opt-Out Instructions:</b> If you wish to opt-out this year, either click <a href="{{opt_out_url}}" target="_blank" style="font-weight: 700; color: #901a1a;">here</a> or copy and paste the URL below into the address bar of your browser and follow the instructions.</p>
 
             <pre>{{opt_out_url}}</pre>
+            {% endcomment %}
         </div>
     </body>
 </html>

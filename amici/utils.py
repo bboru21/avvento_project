@@ -47,29 +47,41 @@ def get_email_context(
     sender_name=settings.DEFAULT_FROM_EMAIL_NAME,
     notification=1,
     year=datetime.datetime.now(),
-    opt_out_urlname='preview',
+    # opt_out_urlname='preview',
 ):
 
     if notification == 1:
+        # content = """
+        #     Advent is just around the corner, and we'll be drawing
+        #     names in just a few days! If you don't wish to
+        #     participate, follow the instructions below.
+        #     Otherwise on November 11th I will email you your
+        #     secret name!
+        # """
         content = """
-            Advent is just around the corner, and we'll be drawing
-            names in just a few days! If you don't wish to
-            participate, follow the instructions below.
-            Otherwise on November 11th I will email you your
+            Advent is just around the corner, and we will be drawing
+            names in just a few days! If you do not wish to
+            participate, please reply to this e-mail and let me know.
+            Otherwise on November 11th I will e-mail you your
             secret name!
         """
     elif notification == 2:
+        # content = """
+        #     Just a reminder that we'll be drawing names tomorrow, so
+        #     if you don't want to participate, be sure to follow the
+        #     instructions below.
+        # """
         content = """
-            Just a reminder that we'll be drawing names tomorrow, so
-            if you don't want to participate, be sure to follow the
-            instructions below.
+            Just a reminder that we will be drawing names tomorrow, so
+            if you do not want to participate, please reply to this
+            e-mail and let me know ASAP!
         """
 
     context = {
         'recipient_name': recipient_name,
         'content': content,
         'site_url': settings.SITE_URL,
-        'opt_out_url': f'{settings.SITE_URL}/amici/opt-out/{opt_out_urlname}/',
+        # 'opt_out_url': f'{settings.SITE_URL}/amici/opt-out/{opt_out_urlname}/',
         'notification': notification,
         'year': year,
         'sender_name': sender_name,

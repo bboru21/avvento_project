@@ -4,6 +4,8 @@ Hi {{recipient_name}},
 
 {{sender_name}}
 
+{% comment %}
 P.S. If you wish to opt-out this year, copy and paste the URL below into the address bar of your browser and follow the instructions:
 
 {{opt_out_url}}
+{% endcomment %}
