@@ -46,7 +46,24 @@ def is_valid_friend(a, b):
 
 
 class Command(BaseCommand):
-    help = 'Generates the Advent Friend List'
+
+    help = '''
+        Generates an Advent Friend list from active participants (Friend), and
+        creates a spreadsheet and e-mails participants.
+    '''
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--test',
+            action='store_true',
+            help='runs script without database write or sending email',
+        )
+        parser.add_argument(
+            '--send_email',
+            action='store_true',
+            help='sends e-mail to participants with their Advent Friend name',
+        )
+
     pool = []
 
     def get_friend(self, contact):
@@ -63,6 +80,7 @@ class Command(BaseCommand):
     '''
     @on_exception(expo, InvalidFriendListException, max_tries=3)
     def handle(self, *args, **options):
+
         friends = []
         contacts = Friend.objects \
             .filter(active=True) \
@@ -91,7 +109,8 @@ class Command(BaseCommand):
                     recipient = Friend.objects.get(id=int(r.get('id')))
 
                     f = FriendList(giver=giver, recipient=recipient)
-                    f.save()
+                    if not options['test']:
+                        f.save()
 
             for [g, r] in friends:
 
@@ -107,22 +126,27 @@ class Command(BaseCommand):
                 if recipient_alt_name:
                     recipient_name = f'{recipient_name} ({recipient_alt_name})'
 
-                send_mail(
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    subject='Advent Friend',
-                    message=f"""
-                        Hi {giver_name},
+                message = f"""
+                    Hi {giver_name},
 
-                        Your Advent friend is: {recipient_name}
+                    Your Advent friend is: {recipient_name}
 
-                        Wishing you a Blessed Advent!
+                    Wishing you a Blessed Advent!
 
-                        {settings.DEFAULT_FROM_EMAIL_NAME}
-                    """,
-                    recipient_list=(g.get('email'),)
-                )
+                    {settings.DEFAULT_FROM_EMAIL_NAME}
+                """
+                #logger.debug(message)
+
+                if not options['test'] and options['send_email']:
+                    send_mail(
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        subject='Advent Friend',
+                        message=message,
+                        recipient_list=(g.get('email'),)
+                    )
+
         except BaseException as error:
-            logger.debug(str(error))
+            logger.error(str(error))
             mail_admins(
                 subject="Amici dell'Avvento Error",
                 message=str(error),
