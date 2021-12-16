@@ -16,4 +16,4 @@ update:
 
 .PHONY: serve
 serve:
-	$(VENV)/bin/python3 avvento/manage.py runserver 0.0.0.0:9000 --settings avvento.settings.local
+	$(VENV)/bin/python3 avvento/manage.py runserver 0.0.0.0:9002 --settings avvento.settings.local
