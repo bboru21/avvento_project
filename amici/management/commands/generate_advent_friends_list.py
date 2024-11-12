@@ -6,10 +6,6 @@ from backoff import on_exception, expo
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db import transaction
-from django.core.mail import (
-    mail_admins,
-    send_mail,
-)
 
 from amici.models import (
     Friend,
@@ -18,6 +14,9 @@ from amici.models import (
 
 logger = logging.getLogger(__name__)
 
+PREVIOUS_LIST_DICT = {
+    str(i.giver.pk): i.recipient.pk for i in FriendList.get_latest_list()
+}
 
 class InvalidFriendListException(Exception):
     """Raised when an invalid Advent Friend List is detected """
@@ -38,7 +37,13 @@ def validate_friend_list(matches):
 
 
 def is_valid_friend(a, b):
-    if a and b and a['id'] not in [b['id'], b['spouse']]:
+    # exclude themselves, spouse and friend from previous year
+    excluded_ids = [
+        b['id'],
+        b['spouse'],
+        PREVIOUS_LIST_DICT.get(str(b['id']), 0),
+    ]
+    if a and b and a['id'] not in excluded_ids:
         return True
     return False
 
@@ -57,11 +62,6 @@ class Command(BaseCommand):
             '--test',
             action='store_true',
             help='runs script without database write or sending email',
-        )
-        parser.add_argument(
-            '--send_email',
-            action='store_true',
-            help='sends e-mail to participants with their Advent Friend name',
         )
 
     pool = []
@@ -112,48 +112,15 @@ class Command(BaseCommand):
                     if not options['test']:
                         f.save()
 
-            for [g, r] in friends:
-
-                giver_name = g.get('alt_name')
-                if not giver_name:
-                    giver_name = g.get('first_name')
-
-                recipient_first_name = r.get('first_name')
-                recipient_last_name = r.get('last_name')
-                recipient_name = f'{recipient_first_name} {recipient_last_name}'
-
-                recipient_alt_name = r.get('alt_name')
-                if recipient_alt_name:
-                    recipient_name = f'{recipient_name} ({recipient_alt_name})'
-
-                message = f"""
-                    Hi {giver_name},
-
-                    Your Advent friend is: {recipient_name}
-
-                    Wishing you a Blessed Advent!
-
-                    {settings.DEFAULT_FROM_EMAIL_NAME}
-                """
-                #logger.debug(message)
-
-                if not options['test'] and options['send_email']:
-                    send_mail(
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        subject='Advent Friend',
-                        message=message,
-                        recipient_list=(g.get('email'),)
-                    )
-
         except BaseException as error:
             logger.error(str(error))
-            mail_admins(
-                subject="Amici dell'Avvento Error",
-                message=str(error),
-            )
+            # mail_admins(
+            #     subject="Amici dell'Avvento Error",
+            #     message=str(error),
+            # )
 
-        mail_admins(
-            subject="Amici dell'Avvento Success",
-            message="Script ran successfully.",
-        )
+        # mail_admins(
+        #     subject="Amici dell'Avvento Success",
+        #     message="Script ran successfully.",
+        # )
         logger.info('finis')

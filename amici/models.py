@@ -33,6 +33,16 @@ class FriendList(models.Model):
     giver = models.ForeignKey(Friend, on_delete=models.CASCADE)
     recipient = models.ForeignKey(Friend, related_name='recipient', on_delete=models.CASCADE)
 
+    @classmethod
+    def get_latest_list_date(self):
+        result = self.objects.aggregate(models.Max('date'))
+        return result['date__max']
+
+    @classmethod
+    def get_latest_list(self):
+        date = self.get_latest_list_date()
+        return self.objects.filter(date=date)
+
     def __str__(self):
         return '{}: {} -> {}'.format(self.date.year, self.giver.display_fullname, self.recipient.display_fullname)
 
