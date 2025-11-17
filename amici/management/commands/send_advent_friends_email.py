@@ -16,6 +16,10 @@ from amici.models import (
 logger = logging.getLogger(__name__)
 
 
+def _format_money(n):
+    return "${:,.2f}".format(n) if isinstance(n, int) else n
+
+
 class Command(BaseCommand):
 
     help = '''
@@ -32,6 +36,12 @@ class Command(BaseCommand):
             '--date',
             type=str,
         )
+        parser.add_argument(
+            '--cap',
+            type=int,
+            default=None,
+            help='adds a spending limit cap message to email'
+        )
 
 
     def handle(self, *args, **options):
@@ -41,6 +51,9 @@ class Command(BaseCommand):
         #     friends = FriendList.objects.filter(date=options['date']).values_list('giver', 'recipient')
         # else:
         friend_list = FriendList.get_latest_list()
+        
+        cap = options['cap']
+        cap_message = f'This year, please try to spend within a limit of {_format_money(cap)} or less. Thanks!' if cap else ''
 
         try:
 
@@ -65,14 +78,12 @@ class Command(BaseCommand):
                 message = f"""
                     Hi {giver_name},
 
-                    Your Advent friend is: {recipient_name}
+                    Your Advent friend is: {recipient_name}. {cap_message}
 
                     Wishing you a Blessed Advent!
 
                     {settings.DEFAULT_FROM_EMAIL_NAME}
                 """
-                # print(message)
-                # logger.debug(message)
 
                 if not options['test']:
                     send_mail(
