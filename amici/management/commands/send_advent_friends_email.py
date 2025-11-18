@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db import transaction
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def _format_money(n):
-    return "${:,.2f}".format(n) if isinstance(n, int) else n
+    return "${:,}".format(n) if isinstance(n, int) else n
 
 
 class Command(BaseCommand):
@@ -29,15 +30,17 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--test',
+            '-t',
             action='store_true',
-            help='runs script without database write or sending email',
+            help='runs script without database write, sends email to matching superusers only',
         )
-        parser.add_argument(
-            '--date',
-            type=str,
-        )
+        # parser.add_argument(
+        #     '--date',
+        #     type=str,
+        # )
         parser.add_argument(
             '--cap',
+            '-c',
             type=int,
             default=None,
             help='adds a spending limit cap message to email'
@@ -46,14 +49,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        superuser_emails = list(User.objects.all().filter(is_superuser=True).values_list('email', flat=True))
+
         # TODO doesn't currently work
         # if options['date']:
         #     friends = FriendList.objects.filter(date=options['date']).values_list('giver', 'recipient')
         # else:
         friend_list = FriendList.get_latest_list()
+
+        print(f'Preparing to send email for {len(friend_list)} contacts...')
         
         cap = options['cap']
-        cap_message = f'This year, please try to spend within a limit of {_format_money(cap)} or less. Thanks!' if cap else ''
+        cap_message = f'As a reminder, please try to keep gifts within the {_format_money(cap)} budget.' if cap else ''
 
         try:
 
@@ -78,17 +85,20 @@ class Command(BaseCommand):
                 message = f"""
                     Hi {giver_name},
 
-                    Your Advent friend is: {recipient_name}. {cap_message}
+                    Your Advent Friend this year is {recipient_name}. 
+                    {cap_message}
 
-                    Wishing you a Blessed Advent!
+                    Wishing you a blessed Advent season!
 
-                    {settings.DEFAULT_FROM_EMAIL_NAME}
+                    --{settings.DEFAULT_FROM_EMAIL_NAME}
                 """
 
-                if not options['test']:
+                # send email only if not a test, or if the user email is that of a superuser (for message verification)
+                if not options['test'] or (giver.email in superuser_emails):
+                    subject = 'Advent Friend (Test)' if options['test'] else 'Advent Friend'
                     send_mail(
                         from_email=settings.DEFAULT_FROM_EMAIL,
-                        subject='Advent Friend',
+                        subject=subject,
                         message=message,
                         recipient_list=(giver.email,)
                     )

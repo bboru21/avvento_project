@@ -18,6 +18,8 @@ PREVIOUS_LIST_DICT = {
     str(i.giver.pk): i.recipient.pk for i in FriendList.get_latest_list()
 }
 
+MAX_TRIES = settings.MAX_GENERATE_LIST_RETRIES + 1
+
 class InvalidFriendListException(Exception):
     """Raised when an invalid Advent Friend List is detected """
     def __init__(self, item1, item2):
@@ -37,15 +39,16 @@ def validate_friend_list(matches):
 
 
 def is_valid_friend(a, b):
-    # exclude themselves, spouse and friend from previous year
-    excluded_ids = [
-        b['id'],
-        b['spouse'],
-        PREVIOUS_LIST_DICT.get(str(b['id']), 0),
-    ]
-    if a and b and a['id'] not in excluded_ids:
-        return True
-    return False
+    if b is not None:
+        # exclude themselves, spouse and friend from previous year
+        excluded_ids = [
+            b['id'],
+            b['spouse'],
+            PREVIOUS_LIST_DICT.get(str(b['id']), 0),
+        ]
+        if a and b and a['id'] not in excluded_ids:
+            return True
+        return False
 
     return False
 
@@ -78,7 +81,7 @@ class Command(BaseCommand):
         Use backoff package to retry if we get a list that has someone without
         an advent friend
     '''
-    @on_exception(expo, InvalidFriendListException, max_tries=3)
+    @on_exception(expo, InvalidFriendListException, max_tries=MAX_TRIES)
     def handle(self, *args, **options):
 
         friends = []

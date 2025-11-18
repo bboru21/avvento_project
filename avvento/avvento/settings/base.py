@@ -314,4 +314,9 @@ SITE_HOSTNAME = ''
 SITE_PORT = ''
 SITE_HOST = f'{SITE_HOSTNAME}:{SITE_PORT}'
 SITE_URL = 'http://{SITE_HOST}'
+
+# number of tries to attempt to rerun generate_advent_friends_list if an InvalidFriendListException is encountered
+MAX_GENERATE_LIST_RETRIES = 3
 ########## END CUSTOM CONFIGURATION
+
+
